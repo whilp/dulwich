@@ -146,7 +146,7 @@ class BaseObjectStore(object):
                     newmode = None
                     newhexsha = None
                     newchildpath = None
-                if (want_unchanged or oldmode != newmode or 
+                if (want_unchanged or oldmode != newmode or
                     oldhexsha != newhexsha):
                     if stat.S_ISDIR(oldmode):
                         if newmode is None or stat.S_ISDIR(newmode):
@@ -180,7 +180,7 @@ class BaseObjectStore(object):
         while todo:
             (tid, tpath) = todo.pop()
             tree = self[tid]
-            for name, mode, hexsha in tree.iteritems(): 
+            for name, mode, hexsha in tree.iteritems():
                 path = posixpath.join(tpath, name)
                 if stat.S_ISDIR(mode):
                     todo.add((hexsha, path))
@@ -193,7 +193,7 @@ class BaseObjectStore(object):
 
         :param haves: Iterable over SHAs already in common.
         :param wants: Iterable over SHAs of objects to fetch.
-        :param progress: Simple progress function that will be called with 
+        :param progress: Simple progress function that will be called with
             updated progress strings.
         :param get_tagged: Function that returns a dict of pointed-to sha -> tag
             sha for including tags.
@@ -219,7 +219,7 @@ class BaseObjectStore(object):
 
     def get_graph_walker(self, heads):
         """Obtain a graph walker for this object store.
-        
+
         :param heads: Local heads to start search with
         :return: GraphWalker object
         """
@@ -302,7 +302,7 @@ class PackBasedObjectStore(BaseObjectStore):
                 return pack.get_raw(sha)
             except KeyError:
                 pass
-        if hexsha is None: 
+        if hexsha is None:
             hexsha = sha_to_hex(name)
         ret = self._get_loose_object(hexsha)
         if ret is not None:
@@ -386,7 +386,7 @@ class DiskObjectStore(PackBasedObjectStore):
     def move_in_thin_pack(self, path):
         """Move a specific file containing a pack into the pack directory.
 
-        :note: The file should be on the same file system as the 
+        :note: The file should be on the same file system as the
             packs directory.
 
         :param path: Path to the pack file.
@@ -394,15 +394,15 @@ class DiskObjectStore(PackBasedObjectStore):
         data = PackData(path)
 
         # Write index for the thin pack (do we really need this?)
-        temppath = os.path.join(self.pack_dir, 
+        temppath = os.path.join(self.pack_dir,
             sha_to_hex(urllib2.randombytes(20))+".tempidx")
         data.create_index_v2(temppath, self.get_raw)
         p = Pack.from_objects(data, load_pack_index(temppath))
 
         # Write a full pack version
-        temppath = os.path.join(self.pack_dir, 
+        temppath = os.path.join(self.pack_dir,
             sha_to_hex(urllib2.randombytes(20))+".temppack")
-        write_pack(temppath, ((o, None) for o in p.iterobjects(self.get_raw)), 
+        write_pack(temppath, ((o, None) for o in p.iterobjects(self.get_raw)),
                 len(p))
         pack_sha = load_pack_index(temppath+".idx").objects_sha1()
         newbasename = os.path.join(self.pack_dir, "pack-%s" % pack_sha)
@@ -413,14 +413,14 @@ class DiskObjectStore(PackBasedObjectStore):
     def move_in_pack(self, path):
         """Move a specific file containing a pack into the pack directory.
 
-        :note: The file should be on the same file system as the 
+        :note: The file should be on the same file system as the
             packs directory.
 
         :param path: Path to the pack file.
         """
         p = PackData(path)
         entries = p.sorted_entries()
-        basename = os.path.join(self.pack_dir, 
+        basename = os.path.join(self.pack_dir,
             "pack-%s" % iter_sha1(entry[0] for entry in entries))
         write_pack_index_v2(basename+".idx", entries, p.get_stored_checksum())
         p.close()
@@ -430,7 +430,7 @@ class DiskObjectStore(PackBasedObjectStore):
     def add_thin_pack(self):
         """Add a new thin pack to this object store.
 
-        Thin packs are packs that contain deltas with parents that exist 
+        Thin packs are packs that contain deltas with parents that exist
         in a different pack.
         """
         fd, path = tempfile.mkstemp(dir=self.pack_dir, suffix=".pack")
@@ -443,9 +443,9 @@ class DiskObjectStore(PackBasedObjectStore):
         return f, commit
 
     def add_pack(self):
-        """Add a new pack to this object store. 
+        """Add a new pack to this object store.
 
-        :return: Fileobject to write to and a commit function to 
+        :return: Fileobject to write to and a commit function to
             call when the pack is finished.
         """
         fd, path = tempfile.mkstemp(dir=self.pack_dir, suffix=".pack")
@@ -588,7 +588,7 @@ class ObjectStoreIterator(ObjectIterator):
     def __contains__(self, needle):
         """Check if an object is present.
 
-        :note: This checks if the object is present in 
+        :note: This checks if the object is present in
             the underlying object store, not if it would
             be yielded by the iterator.
 
@@ -598,7 +598,7 @@ class ObjectStoreIterator(ObjectIterator):
 
     def __getitem__(self, key):
         """Find an object by SHA1.
-        
+
         :note: This retrieves the object from the underlying
             object store. It will also succeed if the object would
             not be returned by the iterator.
@@ -633,7 +633,7 @@ def tree_lookup_path(lookup_obj, root_sha, path):
 class MissingObjectFinder(object):
     """Find the objects missing from another object store.
 
-    :param object_store: Object store containing at least all objects to be 
+    :param object_store: Object store containing at least all objects to be
         sent
     :param haves: SHA1s of commits not to send (already present in target)
     :param wants: SHA1s of commits to send
@@ -687,9 +687,9 @@ class MissingObjectFinder(object):
 
 
 class ObjectStoreGraphWalker(object):
-    """Graph walker that finds out what commits are missing from an object 
+    """Graph walker that finds out what commits are missing from an object
     store.
-    
+
     :ivar heads: Revisions without descendants in the local repo
     :ivar get_parents: Function to retrieve parents in the local repo
     """
