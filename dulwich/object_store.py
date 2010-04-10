@@ -340,6 +340,8 @@ class DiskObjectStore(PackBasedObjectStore):
         super(DiskObjectStore, self).__init__()
         self.path = path
         self.pack_dir = os.path.join(self.path, PACKDIR)
+        if not os.path.isdir(self.pack_dir):
+            os.makedirs(self.pack_dir)
         self._pack_cache_time = 0
 
     def _load_packs(self):
