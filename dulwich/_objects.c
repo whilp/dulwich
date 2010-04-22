@@ -23,6 +23,16 @@
 
 #define bytehex(x) (((x)<0xa)?('0'+(x)):('a'-0xa+(x)))
 
+size_t strnlen(const char *s, size_t maxlen)
+{
+	int i;
+
+	for (i = 0; i < maxlen && *s != '\0'; i++, s++)
+		;
+
+	return i;
+}
+
 static PyObject *sha_to_pyhex(const unsigned char *sha)
 {
 	char hexsha[41];
